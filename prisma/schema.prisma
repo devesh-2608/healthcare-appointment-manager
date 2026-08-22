@@ -1,0 +1,153 @@
+// Healthcare Appointment & Follow-up Manager — Prisma schema
+// DB: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING       // slot held, awaiting confirmation (short-lived hold)
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  DOCTOR_LEAVE  // cancelled because doctor went on leave for that date
+}
+
+enum Urgency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMATION
+  REMINDER
+  CANCELLATION
+  RESCHEDULE
+  LEAVE_NOTICE
+  MEDICATION_REMINDER
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String
+  role          Role
+  phone         String?
+  createdAt     DateTime @default(now())
+
+  // Google Calendar OAuth tokens (per-user, optional — only set once they connect calendar)
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
+
+  doctorProfile      Doctor?       @relation("DoctorUser")
+  patientAppointments Appointment[] @relation("PatientAppointments")
+}
+
+model Doctor {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation("DoctorUser", fields: [userId], references: [id])
+  specialisation String
+  slotDurationMinutes Int @default(30)
+  workingHours   WorkingHour[]
+  leaveDays      LeaveDay[]
+  appointments   Appointment[] @relation("DoctorAppointments")
+}
+
+// Recurring weekly availability, e.g. Monday 09:00–17:00
+model WorkingHour {
+  id        String @id @default(cuid())
+  doctorId  String
+  doctor    Doctor @relation(fields: [doctorId], references: [id])
+  dayOfWeek Int    // 0 = Sunday ... 6 = Saturday
+  startTime String // "09:00"
+  endTime   String // "17:00"
+}
+
+model LeaveDay {
+  id       String   @id @default(cuid())
+  doctorId String
+  doctor   Doctor   @relation(fields: [doctorId], references: [id])
+  date     DateTime // whole day off
+  reason   String?
+  createdAt DateTime @default(now())
+}
+
+// The central booking record. Uniqueness constraint on (doctorId, startTime)
+// is what actually prevents double-booking at the DB level — see system-design.md.
+model Appointment {
+  id          String            @id @default(cuid())
+  doctorId    String
+  doctor      Doctor            @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  patientId   String
+  patient     User              @relation("PatientAppointments", fields: [patientId], references: [id])
+
+  startTime   DateTime
+  endTime     DateTime
+  status      AppointmentStatus @default(PENDING)
+  holdExpiresAt DateTime?       // slot hold TTL while patient completes symptom form/payment
+
+  symptomText       String?
+  aiPreVisitSummary Json?       // { urgencyLevel, chiefComplaint, suggestedQuestions: [] }
+  urgency           Urgency?
+
+  doctorNotes        String?
+  prescription        Json?      // structured: [{ medication, dosage, frequency, durationDays }]
+  aiPostVisitSummary  String?    // patient-friendly text
+
+  googleEventIdPatient String?
+  googleEventIdDoctor  String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  notifications Notification[]
+  reminders     MedicationReminder[]
+
+  @@unique([doctorId, startTime])
+  @@index([patientId])
+  @@index([doctorId, startTime])
+}
+
+model Notification {
+  id            String              @id @default(cuid())
+  appointmentId String
+  appointment   Appointment         @relation(fields: [appointmentId], references: [id])
+  type          NotificationType
+  recipientEmail String
+  status        NotificationStatus  @default(PENDING)
+  attempts      Int                 @default(0)
+  lastError     String?
+  createdAt     DateTime            @default(now())
+  sentAt        DateTime?
+}
+
+model MedicationReminder {
+  id            String      @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  medication    String
+  scheduledFor  DateTime
+  sent          Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+}

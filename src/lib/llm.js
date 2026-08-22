@@ -1,0 +1,119 @@
+// LLM integration for pre-visit and post-visit summaries.
+// Uses the Groq API (free tier — no credit card required, fast LPU
+// inference, see https://console.groq.com). All calls are wrapped so
+// that an LLM outage never breaks the booking or notes flow — callers
+// get a safe fallback object/string plus a `degraded: true` flag instead
+// of a throw.
+
+const MODEL = "llama-3.3-70b-versatile";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+async function callGroq(prompt, { maxTokens = 500 } = {}) {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new Error("GROQ_API_KEY not configured");
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(GROQ_API_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: maxTokens,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Groq API error ${res.status}: ${text}`);
+    }
+
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content;
+    return text ?? "";
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function safeParseJSON(text) {
+  const cleaned = text.replace(/```json|```/g, "").trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Pre-visit summary: urgency level, chief complaint, 3 suggested questions.
+ * Returns { urgencyLevel, chiefComplaint, suggestedQuestions, degraded }.
+ */
+export async function generatePreVisitSummary(symptomText) {
+  const prompt = `Analyse these symptoms and return ONLY a JSON object with keys
+"urgencyLevel" (one of "Low","Medium","High"), "chiefComplaint" (short string),
+and "suggestedQuestions" (array of exactly 3 short strings the doctor could ask
+the patient). No markdown, no preamble, JSON only.
+
+Symptoms: ${symptomText}`;
+
+  try {
+    const raw = await callGroq(prompt, { maxTokens: 400 });
+    const parsed = safeParseJSON(raw);
+    if (!parsed || !parsed.urgencyLevel) throw new Error("Unparseable LLM response");
+    return {
+      urgencyLevel: parsed.urgencyLevel,
+      chiefComplaint: parsed.chiefComplaint || symptomText.slice(0, 120),
+      suggestedQuestions: Array.isArray(parsed.suggestedQuestions)
+        ? parsed.suggestedQuestions.slice(0, 3)
+        : [],
+      degraded: false,
+    };
+  } catch (err) {
+    console.error("Pre-visit LLM summary failed:", err.message);
+    // Safe fallback: doctor still gets the raw symptoms and a default
+    // "Medium" urgency so nothing is silently dropped or mis-triaged low.
+    return {
+      urgencyLevel: "Medium",
+      chiefComplaint: symptomText.slice(0, 120),
+      suggestedQuestions: [],
+      degraded: true,
+    };
+  }
+}
+
+/**
+ * Post-visit summary: converts clinical notes into patient-friendly text
+ * with medication schedule and follow-up steps.
+ * Returns { summary, degraded }.
+ */
+export async function generatePostVisitSummary(clinicalNotes, prescription) {
+  const prompt = `Convert these clinical notes into a patient-friendly summary
+with a medication schedule and follow-up steps. Use plain, reassuring language
+a non-medical person can understand. Keep it under 200 words.
+
+Clinical notes: ${clinicalNotes}
+
+Prescription (structured): ${JSON.stringify(prescription || [])}`;
+
+  try {
+    const raw = await callGroq(prompt, { maxTokens: 500 });
+    if (!raw.trim()) throw new Error("Empty LLM response");
+    return { summary: raw.trim(), degraded: false };
+  } catch (err) {
+    console.error("Post-visit LLM summary failed:", err.message);
+    // Fallback: show the raw notes verbatim so the patient still gets
+    // something useful, flagged as not-yet-simplified.
+    return {
+      summary: `Summary generation is temporarily unavailable. Your doctor's raw notes: ${clinicalNotes}`,
+      degraded: true,
+    };
+  }
+}

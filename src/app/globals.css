@@ -1,0 +1,573 @@
+/* ============================================================
+   Design tokens
+   Palette: deep clinical teal + warm clay accent — calm, trustworthy,
+   not the default SaaS blue. Warm serif (Fraunces) for headings gives
+   the clinic a human register; Inter carries the dense UI/forms.
+   ============================================================ */
+:root {
+  --bg: #f5f8f7;
+  --surface: #ffffff;
+  --surface-alt: #eef4f1;
+  --primary: #2f6f62;
+  --primary-dark: #204e44;
+  --primary-light: #e3eeea;
+  --accent: #dd8a45;
+  --accent-light: #fbead9;
+  --text: #1c2624;
+  --text-muted: #5c6d68;
+  --border: #dde6e2;
+  --danger: #bd4a3c;
+  --danger-light: #f8e2df;
+  --success: #3f8f6f;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(20, 30, 28, 0.05);
+  --shadow: 0 4px 16px rgba(20, 30, 28, 0.07), 0 1px 3px rgba(20, 30, 28, 0.05);
+  --shadow-lg: 0 12px 32px rgba(20, 30, 28, 0.12);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0;
+}
+
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 22px;
+}
+h3 {
+  font-size: 17px;
+}
+
+p {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+}
+
+a {
+  color: var(--primary);
+}
+
+/* ---------- layout shells ---------- */
+
+.page {
+  min-height: 100vh;
+}
+
+.shell {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.shell-narrow {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+/* pulse-line signature: used under page titles as a quiet clinical motif */
+.pulse-line {
+  display: block;
+  width: 84px;
+  height: 14px;
+  margin-top: 10px;
+  color: var(--primary);
+  opacity: 0.55;
+}
+
+/* ---------- cards ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.card-selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.card-flat {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 40px 36px;
+}
+
+/* ---------- forms ---------- */
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9aa9a4;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.field-row > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ---------- buttons ---------- */
+
+button,
+.btn {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid transparent;
+  padding: 11px 18px;
+  cursor: pointer;
+  transition: transform 0.06s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: transparent;
+  padding: 8px 12px;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.btn-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+  border-color: var(--danger-light);
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-sm {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+/* slot picker chips */
+.chip {
+  background: var(--surface-alt);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+.chip:hover {
+  border-color: var(--primary);
+}
+.chip-selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* ---------- badges ---------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.badge-neutral {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+}
+.badge-primary {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+.badge-success {
+  background: #e2f2ea;
+  color: var(--success);
+}
+.badge-warning {
+  background: var(--accent-light);
+  color: #a25f1f;
+}
+.badge-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+/* urgency accents — used as a left border on the AI summary panel */
+.urgency-low {
+  border-left: 4px solid var(--success);
+}
+.urgency-medium {
+  border-left: 4px solid var(--accent);
+}
+.urgency-high {
+  border-left: 4px solid var(--danger);
+}
+
+/* ---------- misc ---------- */
+
+.muted {
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 13.5px;
+  margin: 4px 0 0;
+}
+
+.success-text {
+  color: var(--success);
+  font-size: 13.5px;
+  margin: 4px 0 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  border: none;
+  margin: 20px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+
+.empty-state h3 {
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+/* focus visibility for keyboard users */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .shell {
+    padding: 24px 16px 60px;
+  }
+  h1 {
+    font-size: 26px;
+  }
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ---------- auth split screen ---------- */
+
+.auth-split {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.auth-hero {
+  background: linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 56px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-hero-eyebrow {
+  color: #fff;
+  opacity: 0.85;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.auth-hero h2 {
+  color: #fff;
+  font-size: 30px;
+  max-width: 360px;
+  margin-bottom: 12px;
+}
+
+.auth-hero p {
+  color: #fff;
+  opacity: 0.85;
+  max-width: 340px;
+  margin-bottom: 28px;
+}
+
+.auth-hero-illustration {
+  max-width: 340px;
+  margin-top: 12px;
+}
+
+.auth-form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: var(--bg);
+}
+
+@media (max-width: 860px) {
+  .auth-split {
+    grid-template-columns: 1fr;
+  }
+  .auth-hero {
+    padding: 40px 32px;
+    min-height: 260px;
+  }
+  .auth-hero-illustration {
+    display: none;
+  }
+}
+
+/* ---------- dashboard hero banner ---------- */
+
+.hero-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+}
+
+   .hero-banner::after {
+     content: "";
+     position: absolute;
+     right: -60px;
+     top: -60px;
+     width: 220px;
+     height: 220px;
+     border-radius: 50%;
+     background: rgba(255, 255, 255, 0.08);
+     z-index: 0;
+     pointer-events: none;
+   }
+
+   .hero-banner > * {
+     position: relative;
+     z-index: 1;
+   }
+
+.hero-banner-eyebrow {
+  color: #fff;
+  opacity: 0.85;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.hero-banner h1 {
+  color: #fff;
+}
+
+.hero-banner .pulse-line {
+  color: #fff;
+  opacity: 0.6;
+}
+
+.hero-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-banner .btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+.hero-banner .btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+.hero-banner .btn-ghost {
+  color: rgba(255, 255, 255, 0.85);
+}
+.hero-banner .btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
