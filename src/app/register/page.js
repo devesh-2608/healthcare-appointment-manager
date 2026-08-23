@@ -85,7 +85,7 @@ export default function RegisterPage() {
           </div>
 
           <p className="muted" style={{ textAlign: "center", marginTop: 18 }}>
-            Already registered? <a href="/login">Log in</a>
+            Already registered? <a href="/login/patient">Log in</a>
           </p>
         </div>
       </div>
