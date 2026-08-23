@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Healthcare Appointment & Follow-up Manager",
-  description: "Book appointments, get AI visit summaries, stay on schedule.",
+  title: "MediAssist — Healthcare Appointment Manager",
+  description: "Book appointments, manage visits, and coordinate care with MediAssist.",
 };
 
 export default function RootLayout({ children }) {
