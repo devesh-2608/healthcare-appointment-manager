@@ -60,6 +60,16 @@ export async function POST(request, { params }) {
     summary: `Appointment with ${oldAppt.patient.name}`,
   });
 
+  // Carry the calendar event IDs over to the new appointment record so
+  // future cancel/reschedule actions can still find and modify them.
+  newAppt = await prisma.appointment.update({
+    where: { id: newAppt.id },
+    data: {
+      googleEventIdPatient: oldAppt.googleEventIdPatient,
+      googleEventIdDoctor: oldAppt.googleEventIdDoctor,
+    },
+  });
+
   await sendNotification({
     appointmentId: newAppt.id,
     type: "RESCHEDULE",
