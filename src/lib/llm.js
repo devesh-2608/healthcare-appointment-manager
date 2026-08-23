@@ -57,11 +57,11 @@ function safeParseJSON(text) {
  * Returns { urgencyLevel, chiefComplaint, suggestedQuestions, degraded }.
  */
 export async function generatePreVisitSummary(symptomText) {
-  const prompt = `Analyse these symptoms and return ONLY a JSON object with keys
-"urgencyLevel" (one of "Low","Medium","High"), "chiefComplaint" (short string),
-and "suggestedQuestions" (array of exactly 3 short strings the doctor could ask
-the patient). No markdown, no preamble, JSON only.
-
+  const prompt = `Convert these clinical notes into a patient-friendly summary
+with a medication schedule and follow-up steps. Use plain, reassuring language
+a non-medical person can understand. Keep it under 200 words.
+Write in plain text only — do NOT use Markdown formatting like asterisks,
+bold, headers, or pipe-separated tables. Use simple sentences and line breaks instead.
 Symptoms: ${symptomText}`;
 
   try {
