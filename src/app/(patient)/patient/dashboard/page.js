@@ -98,8 +98,9 @@ export default function PatientDashboard() {
           </div>
           {a.aiPostVisitSummary && (
             <div className="card-flat" style={{ marginTop: 14 }}>
-              <p style={{ margin: 0, color: "var(--text)" }}>
-                <strong>Visit summary:</strong> {a.aiPostVisitSummary}
+              <p style={{ margin: "0 0 6px", fontWeight: 700, color: "var(--text)" }}>Visit summary</p>
+              <p style={{ margin: 0, color: "var(--text)", whiteSpace: "pre-line" }}>
+                {a.aiPostVisitSummary}
               </p>
             </div>
           )}

@@ -5,7 +5,7 @@
 // get a safe fallback object/string plus a `degraded: true` flag instead
 // of a throw.
 
-const MODEL = "openai/gpt-oss-120b";
+const MODEL = "llama-3.3-70b-versatile";
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 async function callGroq(prompt, { maxTokens = 500 } = {}) {
@@ -57,11 +57,11 @@ function safeParseJSON(text) {
  * Returns { urgencyLevel, chiefComplaint, suggestedQuestions, degraded }.
  */
 export async function generatePreVisitSummary(symptomText) {
-  const prompt = `Convert these clinical notes into a patient-friendly summary
-with a medication schedule and follow-up steps. Use plain, reassuring language
-a non-medical person can understand. Keep it under 200 words.
-Write in plain text only — do NOT use Markdown formatting like asterisks,
-bold, headers, or pipe-separated tables. Use simple sentences and line breaks instead.
+  const prompt = `Analyse these symptoms and return ONLY a JSON object with keys
+"urgencyLevel" (one of "Low","Medium","High"), "chiefComplaint" (short string),
+and "suggestedQuestions" (array of exactly 3 short strings the doctor could ask
+the patient). No markdown, no preamble, JSON only.
+
 Symptoms: ${symptomText}`;
 
   try {
@@ -89,6 +89,19 @@ Symptoms: ${symptomText}`;
   }
 }
 
+function stripMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "$1") // **bold**
+    .replace(/\*(.*?)\*/g, "$1") // *italic*
+    .replace(/^#{1,6}\s*/gm, "") // # headers
+    .replace(/^\s*[-*]\s+/gm, "- ") // normalize bullet markers
+    .replace(/\|/g, " ") // stray table pipes
+    .replace(/^\s*-{2,}.*$/gm, "") // markdown table separator rows (---|---)
+    .replace(/[ \t]{2,}/g, " ") // collapse extra spaces left by pipe removal
+    .replace(/\n{3,}/g, "\n\n") // collapse excess blank lines
+    .trim();
+}
+
 /**
  * Post-visit summary: converts clinical notes into patient-friendly text
  * with medication schedule and follow-up steps.
@@ -99,6 +112,12 @@ export async function generatePostVisitSummary(clinicalNotes, prescription) {
 with a medication schedule and follow-up steps. Use plain, reassuring language
 a non-medical person can understand. Keep it under 200 words.
 
+IMPORTANT FORMATTING RULES: Write in plain text only. Do NOT use Markdown —
+no asterisks for bold/italic, no # headers, no tables, no pipe characters.
+Use simple sentences and, if listing medications, a plain line per item like
+"Paracetamol 500mg — once a day for 5 days." Separate sections with a blank
+line, not headers.
+
 Clinical notes: ${clinicalNotes}
 
 Prescription (structured): ${JSON.stringify(prescription || [])}`;
@@ -106,7 +125,7 @@ Prescription (structured): ${JSON.stringify(prescription || [])}`;
   try {
     const raw = await callGroq(prompt, { maxTokens: 500 });
     if (!raw.trim()) throw new Error("Empty LLM response");
-    return { summary: raw.trim(), degraded: false };
+    return { summary: stripMarkdown(raw.trim()), degraded: false };
   } catch (err) {
     console.error("Post-visit LLM summary failed:", err.message);
     // Fallback: show the raw notes AND a plain listing of the prescription
