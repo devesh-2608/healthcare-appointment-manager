@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
+import PortalLoginForm from "@/components/PortalLoginForm";
 
-// The generic /login route now just sends people to the portal selector,
-// since login is role-specific: /login/patient, /login/doctor, /login/admin.
-export default function LoginRedirect() {
-  redirect("/portal");
+export const metadata = { title: "Patient Login — Healthcare Appointment Manager" };
+
+export default function PatientLoginPage() {
+  return <PortalLoginForm role="PATIENT" />;
 }
