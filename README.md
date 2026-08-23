@@ -1,8 +1,9 @@
-# Healthcare Appointment & Follow-up Manager
+# Healthcare Appointment & Follow-up Manager 
+[MediAssist] Link->https://healthcare-appointment-manager-theta.vercel.app/
 
 A full-stack clinic platform with separate patient, doctor, and admin
 portals. Patients book appointments and submit symptoms in advance; an LLM
-generates a pre-visit summary (urgency + chief complaint + suggested
+generates a pre-visit summary (urgency + chief complaint + suggested 
 questions) for the doctor; after the visit, the doctor's notes are turned
 into a patient-friendly post-visit summary with a medication schedule.
 Both sides get email confirmations and Google Calendar events, kept in
