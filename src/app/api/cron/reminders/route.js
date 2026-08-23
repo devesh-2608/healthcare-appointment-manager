@@ -14,8 +14,11 @@ export async function GET(request) {
   const releasedHolds = await releaseExpiredHolds();
 
   // Appointment reminders: appointments starting in ~24h that haven't been reminded.
-  const windowStart = new Date(Date.now() + 23.5 * 60 * 60 * 1000);
-  const windowEnd = new Date(Date.now() + 24.5 * 60 * 60 * 1000);
+  // Since this cron only runs once/day (Vercel Hobby limit), widen the
+// window to catch anything happening in roughly the next 1-2 days,
+// rather than a narrow slice around exactly 24h from now.
+const windowStart = new Date();
+const windowEnd = new Date(Date.now() + 48 * 60 * 60 * 1000);
   const upcoming = await prisma.appointment.findMany({
     where: { status: "CONFIRMED", startTime: { gte: windowStart, lte: windowEnd } },
     include: { patient: true, doctor: { include: { user: true } } },
