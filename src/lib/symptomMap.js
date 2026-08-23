@@ -39,10 +39,17 @@ const SYMPTOM_TO_SPECIALISATION = {
   "cough": ["General Medicine"],
   "headache": ["General Medicine"],
   "body ache": ["General Medicine"],
+  "body pain": ["General Medicine"],
+  "pain": ["General Medicine"],
+  "weakness": ["General Medicine"],
+  "tired": ["General Medicine"],
   "fatigue": ["General Medicine"],
   "sore throat": ["General Medicine"],
   "checkup": ["General Medicine"],
   "check-up": ["General Medicine"],
+  "general": ["General Medicine"],
+  "infection": ["General Medicine"],
+  "allergy": ["General Medicine"],
 
   // Orthopedics
   "bone": ["Orthopedics"],

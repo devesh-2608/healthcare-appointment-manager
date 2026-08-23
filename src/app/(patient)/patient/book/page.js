@@ -15,11 +15,13 @@ export default function BookAppointment() {
   const [symptomText, setSymptomText] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [fallbackNotice, setFallbackNotice] = useState(false);
 
   async function searchDoctors() {
     setError("");
     const data = await apiFetch(`/api/doctors${specialisation ? `?specialisation=${encodeURIComponent(specialisation)}` : ""}`);
     setDoctors(data.doctors);
+    setFallbackNotice(Boolean(data.fallbackToGeneral));
   }
 
   useEffect(() => {
@@ -81,6 +83,14 @@ export default function BookAppointment() {
         <div className="empty-state card">
           <h3>No doctors found</h3>
           <p>Try a different specialisation, or leave the search blank to see everyone.</p>
+        </div>
+      )}
+
+      {fallbackNotice && doctors.length > 0 && (
+        <div className="card-flat" style={{ marginBottom: 12 }}>
+          <p style={{ margin: 0, color: "var(--text)" }}>
+            No specialist matched that search — showing General Medicine doctors, who can help with most concerns or refer you onward.
+          </p>
         </div>
       )}
 

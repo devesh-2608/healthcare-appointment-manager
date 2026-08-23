@@ -41,6 +41,19 @@ export async function GET(request) {
     },
   });
 
+  // Real-world fallback: an unrecognised symptom shouldn't dead-end into
+  // "no doctors found" — a General Medicine doctor can triage almost
+  // anything. Only kicks in when the search matched nothing at all.
+  if (doctors.length === 0) {
+    const fallbackDoctors = await prisma.doctor.findMany({
+      where: { specialisation: { equals: "General Medicine", mode: "insensitive" } },
+      include: { user: { select: { name: true, email: true } }, workingHours: true },
+    });
+    if (fallbackDoctors.length > 0) {
+      return NextResponse.json({ doctors: fallbackDoctors, fallbackToGeneral: true });
+    }
+  }
+
   return NextResponse.json({ doctors });
 }
 

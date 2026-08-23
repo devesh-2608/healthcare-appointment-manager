@@ -109,10 +109,20 @@ Prescription (structured): ${JSON.stringify(prescription || [])}`;
     return { summary: raw.trim(), degraded: false };
   } catch (err) {
     console.error("Post-visit LLM summary failed:", err.message);
-    // Fallback: show the raw notes verbatim so the patient still gets
-    // something useful, flagged as not-yet-simplified.
+    // Fallback: show the raw notes AND a plain listing of the prescription
+    // (medication, dosage, frequency, duration) so the patient still gets
+    // the medically important details even when the AI rewrite is down.
+    const medLines = (prescription || [])
+      .map(
+        (m) =>
+          `- ${m.medication} (${m.dosage}), ${m.frequencyPerDay}x/day for ${m.durationDays} day(s)`
+      )
+      .join("\n");
+    const medicationBlock = medLines
+      ? `\n\nMedication schedule:\n${medLines}`
+      : "";
     return {
-      summary: `Summary generation is temporarily unavailable. Your doctor's raw notes: ${clinicalNotes}`,
+      summary: `Summary generation is temporarily unavailable. Your doctor's raw notes: ${clinicalNotes}${medicationBlock}`,
       degraded: true,
     };
   }
