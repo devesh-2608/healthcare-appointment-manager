@@ -76,7 +76,7 @@ export default function PortalSelectorPage() {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
             gap: 20,
-            marginTop: -56,
+            marginTop: -20,
             paddingBottom: 64,
           }}
         >
