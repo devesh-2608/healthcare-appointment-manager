@@ -18,7 +18,7 @@ const ROLE_CONFIG = {
     label: "Doctor Portal",
     heroTitle: "Every visit, prepared in advance.",
     heroSubtitle:
-      "See AI-generated pre-visit summaries and turn your notes into patient-friendly follow-ups in one click.",
+      "See pre-visit summaries and turn your notes into patient-friendly follow-ups in one click.",
     dashboard: "/doctor/dashboard",
     showRegister: false,
   },
