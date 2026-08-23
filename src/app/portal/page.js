@@ -12,7 +12,7 @@ const PORTALS = [
     role: "doctor",
     title: "Doctor",
     icon: "🩺",
-    description: "Review AI-prepared pre-visit summaries and manage post-visit notes.",
+    description: "Review pre-visit summaries and manage post-visit notes.",
     href: "/login/doctor",
   },
   {
