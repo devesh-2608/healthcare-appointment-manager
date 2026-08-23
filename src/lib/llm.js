@@ -5,7 +5,7 @@
 // get a safe fallback object/string plus a `degraded: true` flag instead
 // of a throw.
 
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "openai/gpt-oss-120b";
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 async function callGroq(prompt, { maxTokens = 500 } = {}) {
